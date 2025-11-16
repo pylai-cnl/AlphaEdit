@@ -1477,7 +1477,11 @@ def load_cached_state(cachefile, args, quiet=False, throw=False):
             dat = cachefile
             cachefile = "state"  # for printed messages
         else:
-            dat = unbox_numpy_null(numpy.load(cachefile))
+            try:
+                dat = unbox_numpy_null(numpy.load(cachefile))
+            except ValueError:
+                # Some cached npz files (e.g., from Colab) were saved with allow_pickle=True cdx
+                dat = unbox_numpy_null(numpy.load(cachefile, allow_pickle=True))
         for a, v in args.items():
             if a not in dat or dat[a] != v:
                 if not quiet:
